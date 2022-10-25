@@ -3,7 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GammaPade", "GammaPade\GammaPade.csproj", "{69D2CDE1-0B9C-4274-8F5E-673D3B03EA19}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GammaPade", "GammaPade\GammaPade.csproj", "{69D2CDE1-0B9C-4274-8F5E-673D3B03EA19}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GammaFunctionFP64", "GammaFunctionFP64\GammaFunctionFP64.csproj", "{18E82895-CDF5-4199-A5F1-FA8F0E271D1A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GammaFunctionFP64Tests", "GammaFunctionFP64Tests\GammaFunctionFP64Tests.csproj", "{8F093A80-33AC-4E6E-815A-E293E84ACBF6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{18E82895-CDF5-4199-A5F1-FA8F0E271D1A} = {18E82895-CDF5-4199-A5F1-FA8F0E271D1A}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +22,14 @@ Global
 		{69D2CDE1-0B9C-4274-8F5E-673D3B03EA19}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69D2CDE1-0B9C-4274-8F5E-673D3B03EA19}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69D2CDE1-0B9C-4274-8F5E-673D3B03EA19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18E82895-CDF5-4199-A5F1-FA8F0E271D1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18E82895-CDF5-4199-A5F1-FA8F0E271D1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18E82895-CDF5-4199-A5F1-FA8F0E271D1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18E82895-CDF5-4199-A5F1-FA8F0E271D1A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F093A80-33AC-4E6E-815A-E293E84ACBF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F093A80-33AC-4E6E-815A-E293E84ACBF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F093A80-33AC-4E6E-815A-E293E84ACBF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F093A80-33AC-4E6E-815A-E293E84ACBF6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
