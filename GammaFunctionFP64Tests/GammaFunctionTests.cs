@@ -7,6 +7,10 @@ namespace GammaFunctionFP64Tests {
     public class GammaTests {
         [TestMethod()]
         public void GammaPositiveValueTest() {
+            for ((uint i, ulong f) = (1, 1); i <= 21; f *= i, i++) {
+                Assert.AreEqual(f, GammaFunction.Gamma(i), $"gamma({i})");
+            }
+
             for ((double x, int i) = (1d / 1024, 1); x <= 171.625; x += 1d / 1024, i++) {
                 MultiPrecision<Pow2.N8> expected = MultiPrecision<Pow2.N8>.Gamma(x);
                 double actual = GammaFunction.Gamma(x);
