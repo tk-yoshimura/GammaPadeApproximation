@@ -4,12 +4,12 @@ using MultiPrecision;
 
 namespace GammaFunctionFP64Tests {
     [TestClass()]
-    public class GammaTests {
+    public class DigammaTests {
         [TestMethod()]
-        public void GammaPositiveValueTest() {
-            for ((double x, int i) = (1d / 1024, 1); x <= 171.625; x += 1d / 1024, i++) {
-                MultiPrecision<Pow2.N8> expected = MultiPrecision<Pow2.N8>.Gamma(x);
-                double actual = GammaFunction.Gamma(x);
+        public void DigammaPositiveValueTest() {
+            for ((double x, int i) = (1d / 1024, 1); x <= 128; x += 1d / 1024, i++) {
+                MultiPrecision<Pow2.N8> expected = MultiPrecision<Pow2.N8>.Digamma(x);
+                double actual = GammaFunction.Digamma(x);
 
                 if ((i % 256) == 0) {
                     Console.WriteLine(x);
@@ -28,6 +28,25 @@ namespace GammaFunctionFP64Tests {
                         Console.WriteLine("skip checking abnormal value");
                         continue;
                     }
+                    Assert.Fail($"{x}\n{actual}\n{expected}");
+
+                    Console.WriteLine($"{x}\n{actual}\n{expected}");
+                }
+            }
+
+            for (double x = 256; x < double.MaxValue; x *= 2) {
+                MultiPrecision<Pow2.N8> expected = MultiPrecision<Pow2.N8>.Digamma(x);
+                double actual = GammaFunction.Digamma(x);
+
+                Console.WriteLine(x);
+                Console.WriteLine(actual);
+                Console.WriteLine(expected);
+
+                if (MultiPrecision<Pow2.N8>.Abs(actual - expected) > MultiPrecision<Pow2.N8>.Abs(expected) * 8e-16 || !double.IsFinite(actual)) {
+                    if (!double.IsNormal(actual) && !double.IsNormal((double)expected)) {
+                        Console.WriteLine("skip checking abnormal value");
+                        break;
+                    }
 
                     Assert.Fail($"{x}\n{actual}\n{expected}");
                 }
@@ -35,10 +54,10 @@ namespace GammaFunctionFP64Tests {
         }
 
         [TestMethod()]
-        public void GammaNegativeValueTest() {
+        public void DigammaNegativeValueTest() {
             for ((double x, int i) = (-1d / 1024, 1); x >= -32; x -= 1d / 1024, i++) {
-                MultiPrecision<Pow2.N8> expected = MultiPrecision<Pow2.N8>.Gamma(x);
-                double actual = GammaFunction.Gamma(x);
+                MultiPrecision<Pow2.N8> expected = MultiPrecision<Pow2.N8>.Digamma(x);
+                double actual = GammaFunction.Digamma(x);
 
                 if ((i % 256) == 0) {
                     Console.WriteLine(x);
@@ -50,7 +69,7 @@ namespace GammaFunctionFP64Tests {
                     continue;
                 }
 
-                if (MultiPrecision<Pow2.N8>.Abs(actual - expected) > MultiPrecision<Pow2.N8>.Abs(expected) * 8e-16 || !double.IsFinite(actual)) {
+                if (MultiPrecision<Pow2.N8>.Abs(actual - expected) > MultiPrecision<Pow2.N8>.Abs(expected) * 2e-15 + 2e-15 || !double.IsFinite(actual)) {
                     if (!double.IsNormal(actual) && !double.IsNormal((double)expected)) {
                         Console.WriteLine("skip checking abnormal value");
                         continue;

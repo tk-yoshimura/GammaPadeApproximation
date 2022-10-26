@@ -1,8 +1,6 @@
 ﻿// Copyright (c) T.Yoshimura 2022
 // https://github.com/tk-yoshimura
 
-using System.Runtime.CompilerServices;
-
 namespace GammaFunctionFP64 {
     public static partial class GammaFunction {
         public static double Gamma(double x) {
@@ -14,10 +12,6 @@ namespace GammaFunctionFP64 {
             }
 
             if (x < 0.5) {
-                if (Math.Truncate(x) == x) {
-                    return double.NaN;
-                }
-
                 double t = Theta(x);
                 double y = Math.PI / (Math.Sin(t * Math.PI) * Gamma(1d - x));
 
@@ -928,7 +922,7 @@ namespace GammaFunctionFP64 {
                 -2.7777777777777777778e-3, t, Fma(
                 7.9365079365079365079e-4, t, Fma(
                 -5.952380952380952381e-4, t, Fma(
-                8.4175084175084175084e-4, t, 
+                8.4175084175084175084e-4, t,
                 -1.9175269175269175269e-3)))));
 
             double a = Math.Sqrt(2.0 * Math.PI / x);
@@ -949,7 +943,7 @@ namespace GammaFunctionFP64 {
             }
 #endif
 
-            double u = x - 1.0; 
+            double u = x - 1.0;
 
             double y = u * GammaLimit(u);
 

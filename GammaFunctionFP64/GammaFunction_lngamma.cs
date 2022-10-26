@@ -1,8 +1,6 @@
 ﻿// Copyright (c) T.Yoshimura 2022
 // https://github.com/tk-yoshimura
 
-using System.Runtime.CompilerServices;
-
 namespace GammaFunctionFP64 {
     public static partial class GammaFunction {
         public static double LogGamma(double x) {
