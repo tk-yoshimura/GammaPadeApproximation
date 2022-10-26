@@ -15,8 +15,7 @@ namespace GammaFunctionFP64 {
                     return DigammaNearRoot(x);
                 }
                 if (x < 0.25) {
-                    double t = x - Math.Round(x);
-                    double y = Digamma(1d - x) - Math.PI / Math.Tan(t * Math.PI);
+                    double y = Digamma(1d - x) - Math.PI / TanPI(x);
 
                     return y;
                 }

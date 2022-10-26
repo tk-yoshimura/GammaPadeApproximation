@@ -17,5 +17,29 @@ namespace GammaFunctionFP64 {
 
             return t;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static double SinPI(double x) {
+            double t = Theta(x);
+            double y = Math.Sin(t * Math.PI);
+
+            return y;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static double CosPI(double x) {
+            double t = Theta(x);
+            double y = Math.Sin(t * Math.PI);
+
+            return y;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static double TanPI(double x) {
+            double t = x - Math.Round(x);
+            double y = Math.Tan(t * Math.PI);
+
+            return y;
+        }
     }
 }

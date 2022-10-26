@@ -12,8 +12,7 @@ namespace GammaFunctionFP64 {
             }
 
             if (x < 0.5) {
-                double t = Theta(x);
-                double y = Math.PI / (Math.Sin(t * Math.PI) * Gamma(1d - x));
+                double y = Math.PI / (SinPI(x) * Gamma(1d - x));
 
                 return y;
             }
