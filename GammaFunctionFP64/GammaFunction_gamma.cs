@@ -116,19 +116,6 @@ namespace GammaFunctionFP64 {
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static double Fma(double z, double x, double y) {
-            return Math.FusedMultiplyAdd(x, y, z);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static double Theta(double x) {
-            double r = Math.Round(x);
-            double t = (((int)r & 1) == 0) ? (x - r) : (r - x);
-
-            return t;
-        }
-
         private static double GammaNear1(double x) {
             double w = x - 1.0;
 
