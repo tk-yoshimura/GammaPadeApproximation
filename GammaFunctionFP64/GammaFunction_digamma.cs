@@ -9,9 +9,9 @@ namespace GammaFunctionFP64 {
             if (double.IsNaN(x) || double.IsNegativeInfinity(x)) {
                 return double.NaN;
             }
-            
+
             if (x < 4.5) {
-                if (Math.Abs(x - DigammaZero) < 0.25) { 
+                if (Math.Abs(x - DigammaZero) < 0.25) {
                     return DigammaNearRoot(x);
                 }
                 if (x < 0.25) {

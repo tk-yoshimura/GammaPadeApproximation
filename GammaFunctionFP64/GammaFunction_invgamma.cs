@@ -4,7 +4,7 @@
 namespace GammaFunctionFP64 {
     public static partial class GammaFunction {
         public static double InverseGamma(double x) {
-            if (!(x >= 1)) {
+            if (!(x >= 1.0)) {
                 return double.NaN;
             }
             if (double.IsPositiveInfinity(x)) {
@@ -15,11 +15,11 @@ namespace GammaFunctionFP64 {
                 double y;
 
                 if (x < 8) {
-                    y = Math.Log(x + 1.0);
+                    y = x * (30.0 + x * (21.0 + x)) / (30.0 + x * (36.0 + x * 9.0));
                 }
                 else {
                     double lnx = Math.Log(x), lnlnx = Math.Log(lnx);
-                    y = lnx - lnlnx + lnlnx / (2.0 * lnx);
+                    y = lnx - lnlnx + lnlnx / (lnx + lnx);
                 }
 
                 double exp_y = Math.Exp(y);

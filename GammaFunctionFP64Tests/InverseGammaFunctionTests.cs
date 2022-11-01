@@ -1,6 +1,5 @@
 ﻿using GammaFunctionFP64;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MultiPrecision;
 
 namespace GammaFunctionFP64Tests {
     [TestClass()]
