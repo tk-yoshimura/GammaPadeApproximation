@@ -1,5 +1,8 @@
 # GammaPade
 
+[Download DLL](https://github.com/tk-yoshimura/GammaPadeApproximation/releases)  
+[Download Nuget](https://www.nuget.org/packages/tyoshimura.GammaFunctionFP64/)  
+
 Gamma function pade approximation
 
 See also: [PadeApproximation](https://github.com/tk-yoshimura/PadeApproximation/)  
