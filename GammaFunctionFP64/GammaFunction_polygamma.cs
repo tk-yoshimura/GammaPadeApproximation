@@ -41,15 +41,37 @@ namespace GammaFunctionFP64 {
                 if (x <= Math.ScaleB(1, -96)) {
                     return ((n & 1) == 1) ? double.PositiveInfinity : double.NaN;
                 }
-                if (x <= 32) {
-                    return PolygammaPlusX.PolygammaNearZero(n, x);
+
+                if (n == 1 && x <= 8) {
+                    return PolygammaN1Recurrence(x);
                 }
-                else {
-                    return PolygammaPlusX.PolygammaLimit(n, x);
+
+                if ((n == 2 && x <= 16) || (n >= 3 && x <= 32)) {
+                    return PolygammaNearZero(n, x);
                 }
+
+                return PolygammaLimit(n, x);
+            }
+
+            public static double PolygammaN1Recurrence(double x) {
+                int k = (int)Math.Floor(x);
+                double f = x - k;
+
+                double y = PolygammaLimit(1, 8.0 + f);
+                for (int i = k; i < 8; i++) {
+                    y += 1 / Square(i + f);
+                }
+
+                return y;
             }
 
             public static double PolygammaNearZero(int n, double x) {
+#if DEBUG
+                if (n <= 1) {
+                    throw new ArgumentOutOfRangeException(nameof(n));
+                }
+#endif
+
                 if (x < 1) {
                     double v = PolygammaNearZero(n, x + 1d);
                     double y = v + factorial[n] / Pow(x, n + 1);
@@ -57,34 +79,21 @@ namespace GammaFunctionFP64 {
                     return y;
                 }
 
-                double scale = Math.Max(1, 8d / n), r = scale * n / x;
+                double scale = (n == 2) ? 2.0 : (n == 3) ? 1.375 : 1, r = scale * n / x;
                 double ir = 0, it = 0;
 
-                Func<double, double> polygamma_ir =
-                (n > 1) ? (t) => {
+                double polygamma_ir(double t) {
                     double y = Pow(t, n) * Math.Exp(-x * t) / (1d - Math.Exp(-t));
 
                     return y;
                 }
-                : (t) => {
-                    double y = t * Math.Exp(-x * t) / (1d - Math.Exp(-t));
 
-                    return y;
-                };
-
-                Func<double, double> polygamma_it =
-                (n > 1) ? (u) => {
+                double polygamma_it(double u) {
                     double v = (u + scale * n) / x;
                     double y = Pow(v, n) / (1d - Math.Exp(-v));
 
                     return y;
                 }
-                : (u) => {
-                    double v = (u + scale) / x;
-                    double y = v / (1d - Math.Exp(-v));
-
-                    return y;
-                };
 
                 foreach ((double t, double w) in gles) {
                     ir += w * polygamma_ir(t * r);
@@ -205,7 +214,7 @@ namespace GammaFunctionFP64 {
                 7d/6,
                 -3617d/510,
                 43867d/798,
-                -174611d/330
+                -174611d/330,
             });
         }
 
