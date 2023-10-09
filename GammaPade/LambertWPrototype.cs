@@ -3,9 +3,10 @@ using System;
 
 namespace GammaPade {
 
-    internal struct Plus1<N> : IConstant where N : struct, IConstant {
-        public int Value => checked(default(N).Value + 1);
+    internal struct Plus4<N> : IConstant where N : struct, IConstant {
+        public int Value => checked(default(N).Value + 4);
     }
+
     public static class LambertWPrototype<N> where N : struct, IConstant {
 
         public static MultiPrecision<N> LambertW(MultiPrecision<N> x) {
@@ -22,7 +23,7 @@ namespace GammaPade {
                 return (x < -1 / MultiPrecision<N>.E) ? MultiPrecision<N>.NaN : -1;
             }
 
-            MultiPrecision<Plus1<N>> y;
+            MultiPrecision<Plus4<N>> y;
             if (x >= -0.365) {
                 double xd = (double)x, yd;
 
@@ -55,25 +56,25 @@ namespace GammaPade {
 
                 y = yd;
             }
-            else { 
-                MultiPrecision<Plus1<N>> v = MultiPrecision<Plus1<N>>.Log(x.Convert<Plus1<N>>() + 1 / MultiPrecision<Plus1<N>>.E);
+            else {
+                MultiPrecision<Plus4<N>> v = MultiPrecision<Plus4<N>>.Log(x.Convert<Plus4<N>>() + 1 / MultiPrecision<Plus4<N>>.E);
 
-                y = MultiPrecision<Plus1<N>>.Exp(
-                    ((v + MultiPrecision<Plus1<N>>.Log(2 * MultiPrecision<Plus1<N>>.E)) * 2
-                    - (MultiPrecision<Plus1<N>>.PI * MultiPrecision<Plus1<N>>.Exp(v / 2))) / 4
+                y = MultiPrecision<Plus4<N>>.Exp(
+                    ((v + MultiPrecision<Plus4<N>>.Log(2 * MultiPrecision<Plus4<N>>.E)) * 2
+                    - (MultiPrecision<Plus4<N>>.PI * MultiPrecision<Plus4<N>>.Exp(v / 2))) / 4
                     ) - 1.0;
             }
 
             {
-                MultiPrecision<Plus1<N>> exp_y, d, dy;
+                MultiPrecision<Plus4<N>> exp_y, d, dy;
 
                 for (int i = 0; i < 65536; i++) {
-                    exp_y = MultiPrecision<Plus1<N>>.Exp(y);
-                    d = y * exp_y - x.Convert<Plus1<N>>();
+                    exp_y = MultiPrecision<Plus4<N>>.Exp(y);
+                    d = y * exp_y - x.Convert<Plus4<N>>();
                     dy = d / (exp_y * (y + 1) - (y + 2) * d / (y + y + 2));
                     y -= dy;
 
-                    if (y.Exponent - dy.Exponent > MultiPrecision<N>.Bits) {
+                    if (y.Exponent - dy.Exponent > MultiPrecision<N>.Bits + 4) {
                         return y.Convert<N>();
                     }
                 }
