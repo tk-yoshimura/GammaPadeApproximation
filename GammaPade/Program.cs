@@ -3,6 +3,7 @@ using MultiPrecisionAlgebra;
 using MultiPrecisionCurveFitting;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.IO;
 using System.Linq;
 
@@ -15,64 +16,71 @@ namespace GammaPade {
 
             List<(MultiPrecision<Pow2.N32> x, MultiPrecision<Pow2.N32> y)> expecteds = new();
 
-            //using StreamReader sr = new("../../../../results_disused/invgamma_e32.csv");
+            using StreamReader sr = new("../../../../results_disused/invgamma_e32.csv");
 
-            //sr.ReadLine();
-            //while (!sr.EndOfStream) {
-            //    string? line = sr.ReadLine();
-            //    if (string.IsNullOrWhiteSpace(line)) {
-            //        break;
-            //    }
-
-            //    string[] line_split = line.Split(",");
-            //    MultiPrecision<Pow2.N32> x = line_split[1], y = line_split[0];
-
-            //    expecteds.Add((x, y));
-            //}
-
-            using StreamWriter sw = new("../../../../results_disused/invgamma_e32_2.csv");
-
-            sw.WriteLine("pade approximant invgamma");
-
-            for (MultiPrecision<Pow2.N32> x = 2; x <= 180; x += 1 / 1024d) {
-                MultiPrecision<Pow2.N32> y = f32(x);
-
-                if (y > 1024) {
+            sr.ReadLine();
+            while (!sr.EndOfStream) {
+                string? line = sr.ReadLine();
+                if (string.IsNullOrWhiteSpace(line)) {
                     break;
                 }
 
-                sw.WriteLine($"{y},{x}");
+                string[] line_split = line.Split(",");
+                MultiPrecision<Pow2.N32> x = line_split[1], y = line_split[0];
 
                 expecteds.Add((x, y));
             }
 
-            sw.Flush();
+            //using StreamWriter sw = new("../../../../results_disused/invgamma_e32_2.csv");
 
-            using StreamWriter sw_result = new("../../../../results_disused/invgamma_e32_pade_2.csv");
+            //sw.WriteLine("pade approximant invgamma");
 
-            foreach ((double ymin, double ymax) in new (double, double)[] { (0, 0.5), (0.5, 1), (1, 2), (2, 4), (4, 8), (8, 16), (16, 32), (32, 64), (64, 128), (128, 256), (256, 512), (512, 1024) }) {
-                sw_result.WriteLine($"\nrange y in [{ymin}, {ymax}]");
+            //for (MultiPrecision<Pow2.N32> x = 2; x <= 180; x += 1 / 1024d) {
+            //    MultiPrecision<Pow2.N32> y = f32(x);
+
+            //    if (y > 1024) {
+            //        break;
+            //    }
+
+            //    sw.WriteLine($"{y},{x}");
+
+            //    expecteds.Add((x, y));
+            //}
+
+            //sw.Flush();
+
+            using StreamWriter sw_result = new("../../../../results_disused/gamma_e32_pade_7.csv");
+
+            foreach ((double xmin, double xmax) in new (double, double)[] { 
+                (36, 44), (44, 52), (52, 60), (60, 68), 
+                (68, 76), (76, 84), (84, 92), (92, 100),
+                (100, 108), (108, 116), (116, 124), (124, 132),
+                (132, 140), (140, 148), (148, 156), (156, 164),
+                (164, 172)
+            }) {
+                
+                sw_result.WriteLine($"\nrange x in [{xmin}, {xmax}]");
 
                 sw_result.WriteLine("pade results");
 
                 List<(MultiPrecision<Pow2.N32> x, MultiPrecision<Pow2.N32> y)> expecteds_range =
-                    expecteds.Where((item) => item.y >= ymin && item.y <= ymax).ToList();
+                    expecteds.Where((item) => item.x >= xmin && item.x <= xmax).ToList();
                 
-                Vector<Pow2.N32> xs = expecteds_range.Select(item => item.x).ToArray(), ys = expecteds_range.Select(item => item.y - ymin).ToArray();
+                Vector<Pow2.N32> xs = expecteds_range.Select(item => item.x - xmin).ToArray(), ys = expecteds_range.Select(item => item.y / item.x).ToArray();
 
                 for (int m = 2; m <= 32; m++) {
-                    PadeFitter<Pow2.N32> pade = new(ys, xs, m, m);
+                    PadeFitter<Pow2.N32> pade = new(xs, ys, m, m);
 
                     Vector<Pow2.N32> param = pade.ExecuteFitting();
                     Vector<Pow2.N32> errs = pade.Error(param);
 
                     MultiPrecision<Pow2.N32> max_rateerr = 0;
                     for (int i = 0; i < errs.Dim; i++) {
-                        if (xs[i] == 0) {
+                        if (ys[i] == 0) {
                             continue;
                         }
 
-                        max_rateerr = MultiPrecision<Pow2.N32>.Max(errs[i] / xs[i], max_rateerr);
+                        max_rateerr = MultiPrecision<Pow2.N32>.Max(errs[i] / ys[i], max_rateerr);
                     }
 
                     Console.WriteLine($"m={m},n={m}");
@@ -88,13 +96,9 @@ namespace GammaPade {
                         foreach(var v in param[m..]) {
                             sw_result.WriteLine(v.val);
                         }
-                        sw_result.WriteLine("numer(hexcode)");
-                        foreach(var v in param[..m]) {
-                            sw_result.WriteLine(ToFP128(v.val));
-                        }
-                        sw_result.WriteLine("denom(hexcode)");
-                        foreach(var v in param[m..]) {
-                            sw_result.WriteLine(ToFP128(v.val));
+                        sw_result.WriteLine("hexcode");
+                        for(int i = 0; i < m; i++) {
+                            sw_result.WriteLine($"({ToFP128(param[i])}, {ToFP128(param[i + m])}),");
                         }
                         sw_result.WriteLine("relative err");
                         sw_result.WriteLine($"{max_rateerr:e20}");
