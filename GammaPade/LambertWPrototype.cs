@@ -10,13 +10,13 @@ namespace GammaPade {
     public static class LambertWPrototype<N> where N : struct, IConstant {
 
         public static MultiPrecision<N> LambertW(MultiPrecision<N> x) {
-            if (x.IsZero) {
+            if (MultiPrecision<N>.IsZero(x)) {
                 return 0;
             }
-            if (x.IsNaN) {
+            if (MultiPrecision<N>.IsNaN(x)) {
                 return MultiPrecision<N>.NaN;
             }
-            if (x > 0 && !x.IsFinite) {
+            if (x > 0 && !MultiPrecision<N>.IsFinite(x)) {
                 return MultiPrecision<N>.PositiveInfinity;
             }
             if (x <= -1 / MultiPrecision<N>.E) {

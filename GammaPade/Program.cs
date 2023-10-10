@@ -1,4 +1,6 @@
 ﻿using MultiPrecision;
+using MultiPrecisionAlgebra;
+using MultiPrecisionCurveFitting;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,89 +9,96 @@ using System.Linq;
 namespace GammaPade {
     internal class Program {
         static void Main(string[] args) {
-            static MultiPrecision<Pow2.N256> f256(MultiPrecision<Pow2.N256> x) {
-                if (x <= 0) {
-                    return -1;
-                }
-                return LambertWPrototype<Pow2.N256>.LambertW((x * x - 2) / (2 * MultiPrecision<Pow2.N256>.E));
+            static MultiPrecision<Pow2.N32> f32(MultiPrecision<Pow2.N32> x) {
+                return MultiPrecision<Pow2.N32>.Log2(MultiPrecision<Pow2.N32>.Gamma(x));
             }
 
-            static MultiPrecision<Pow2.N128> f128(MultiPrecision<Pow2.N128> x) {
-                if (x <= 0) {
-                    return -1;
+            List<(MultiPrecision<Pow2.N32> x, MultiPrecision<Pow2.N32> y)> expecteds = new();
+
+            //using StreamReader sr = new("../../../../results_disused/invgamma_e32.csv");
+
+            //sr.ReadLine();
+            //while (!sr.EndOfStream) {
+            //    string? line = sr.ReadLine();
+            //    if (string.IsNullOrWhiteSpace(line)) {
+            //        break;
+            //    }
+
+            //    string[] line_split = line.Split(",");
+            //    MultiPrecision<Pow2.N32> x = line_split[1], y = line_split[0];
+
+            //    expecteds.Add((x, y));
+            //}
+
+            using StreamWriter sw = new("../../../../results_disused/invgamma_e32_2.csv");
+
+            sw.WriteLine("pade approximant invgamma");
+
+            for (MultiPrecision<Pow2.N32> x = 2; x <= 180; x += 1 / 1024d) {
+                MultiPrecision<Pow2.N32> y = f32(x);
+
+                if (y > 1024) {
+                    break;
                 }
-                return LambertWPrototype<Pow2.N128>.LambertW((x * x - 2) / (2 * MultiPrecision<Pow2.N128>.E));
+
+                sw.WriteLine($"{y},{x}");
+
+                expecteds.Add((x, y));
             }
 
-            using StreamWriter sw = new("../../../../results_disused/lambert_w_pade_table_e32_5.csv");
+            sw.Flush();
 
-            MultiPrecision<Pow2.N128>[] xs = new MultiPrecision<Pow2.N128>[]{
-                0, MultiPrecision<Pow2.N128>.Div(5, 8)
-            };
+            using StreamWriter sw_result = new("../../../../results_disused/invgamma_e32_pade_2.csv");
 
-            sw.WriteLine("pade approximant lambert_w((x^2 - 2) / (2e))");
+            foreach ((double ymin, double ymax) in new (double, double)[] { (0, 0.5), (0.5, 1), (1, 2), (2, 4), (4, 8), (8, 16), (16, 32), (32, 64), (64, 128), (128, 256), (256, 512), (512, 1024) }) {
+                sw_result.WriteLine($"\nrange y in [{ymin}, {ymax}]");
 
-            for (int j = 0; j < xs.Length - 1; j++) {
-                MultiPrecision<Pow2.N128> x0 = xs[j], x1 = xs[j + 1];
-                MultiPrecision<Pow2.N128> dx = (x1 - x0) / 512;
+                sw_result.WriteLine("pade results");
 
-                sw.WriteLine($"\nrange x in [{x0}, {x1}]");
+                List<(MultiPrecision<Pow2.N32> x, MultiPrecision<Pow2.N32> y)> expecteds_range =
+                    expecteds.Where((item) => item.y >= ymin && item.y <= ymax).ToList();
+                
+                Vector<Pow2.N32> xs = expecteds_range.Select(item => item.x).ToArray(), ys = expecteds_range.Select(item => item.y - ymin).ToArray();
 
-                sw.WriteLine("expected");
-                List<MultiPrecision<Pow2.N128>> expecteds = new();
-                for (MultiPrecision<Pow2.N128> x = x0; x <= x1; x += dx) {
-                    MultiPrecision<Pow2.N128> y = f128(x);
+                for (int m = 2; m <= 32; m++) {
+                    PadeFitter<Pow2.N32> pade = new(ys, xs, m, m);
 
-                    expecteds.Add(y);
+                    Vector<Pow2.N32> param = pade.ExecuteFitting();
+                    Vector<Pow2.N32> errs = pade.Error(param);
 
-                    sw.WriteLine($"{x},{y:e40}");
-                }
+                    MultiPrecision<Pow2.N32> max_rateerr = 0;
+                    for (int i = 0; i < errs.Dim; i++) {
+                        if (xs[i] == 0) {
+                            continue;
+                        }
 
-                sw.WriteLine($"diffs x = {x0}");
-                MultiPrecision<Pow2.N256>[] diffs = ForwardFiniteDifference<Pow2.N256>.Diff(x0.Convert<Pow2.N256>(), f256, Math.ScaleB(1, -28));
-
-                sw.Flush();
-
-                MultiPrecision<Pow2.N128>[] cs = new MultiPrecision<Pow2.N128>[diffs.Length + 1];
-                cs[0] = f128(x0);
-                for (int i = 0; i < diffs.Length; i++) {
-                    cs[i + 1] = diffs[i].Convert<Pow2.N128>() * MultiPrecision<Pow2.N128>.TaylorSequence[i + 1];
-
-                    sw.WriteLine($"({ToFP128(cs[i + 1])}");
-                }
-
-                for (int i = 0; i < diffs.Length; i++) {
-                    MultiPrecision<Pow2.N128> c = cs[i + 1];
-
-                    sw.WriteLine(c);
-                    sw.WriteLine($"({ToFP128(c)}");
-                }
-
-                sw.WriteLine("pade results");
-
-                for (int m = 2; m <= 128; m++) {
-                    (MultiPrecision<Pow2.N128>[] ms, MultiPrecision<Pow2.N128>[] ns) =
-                        PadeSolver<Pow2.N128>.Solve(cs.Take(m + m + 1).ToArray(), m, m);
-
-                    MultiPrecision<Pow2.N128> err = 0;
-                    for ((int i, MultiPrecision<Pow2.N128> x) = (0, x0); i < expecteds.Count; i++, x += dx) {
-                        MultiPrecision<Pow2.N128> expected = expecteds[i];
-                        MultiPrecision<Pow2.N128> actual = PadeSolver<Pow2.N128>.Approx(x - x0, ms, ns);
-
-                        err = MultiPrecision<Pow2.N128>.Max(err, MultiPrecision<Pow2.N128>.Abs(expected / actual - 1));
+                        max_rateerr = MultiPrecision<Pow2.N32>.Max(errs[i] / xs[i], max_rateerr);
                     }
 
                     Console.WriteLine($"m={m},n={m}");
-                    Console.WriteLine($"{err:e20}");
+                    Console.WriteLine($"{max_rateerr:e20}");
 
-                    if (err < 2e-32) {
-                        sw.WriteLine($"m={m},n={m}");
-                        for (int i = 0; i <= m; i++) {
-                            sw.WriteLine($"({ToFP128(ms[i])}, {ToFP128(ns[i])}), ");
+                    if (max_rateerr < 2e-32) {
+                        sw_result.WriteLine($"m={m},n={m}");
+                        sw_result.WriteLine("numer");
+                        foreach(var v in param[..m]) {
+                            sw_result.WriteLine(v.val);
                         }
-                        sw.WriteLine("relative err");
-                        sw.WriteLine($"{err:e20}");
-                        sw.Flush();
+                        sw_result.WriteLine("denom");
+                        foreach(var v in param[m..]) {
+                            sw_result.WriteLine(v.val);
+                        }
+                        sw_result.WriteLine("numer(hexcode)");
+                        foreach(var v in param[..m]) {
+                            sw_result.WriteLine(ToFP128(v.val));
+                        }
+                        sw_result.WriteLine("denom(hexcode)");
+                        foreach(var v in param[m..]) {
+                            sw_result.WriteLine(ToFP128(v.val));
+                        }
+                        sw_result.WriteLine("relative err");
+                        sw_result.WriteLine($"{max_rateerr:e20}");
+                        sw_result.Flush();
 
                         break;
                     }
@@ -100,7 +109,7 @@ namespace GammaPade {
             Console.Read();
         }
 
-        public static string ToFP128(MultiPrecision<Pow2.N128> x) {
+        public static string ToFP128(MultiPrecision<Pow2.N32> x) {
             Sign sign = x.Sign;
             long exponent = x.Exponent;
             uint[] mantissa = x.Mantissa.Reverse().ToArray();
