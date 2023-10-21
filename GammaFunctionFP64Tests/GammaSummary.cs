@@ -1,5 +1,4 @@
 ﻿using DoubleDouble;
-using GammaFunctionFP64;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MultiPrecision;
 

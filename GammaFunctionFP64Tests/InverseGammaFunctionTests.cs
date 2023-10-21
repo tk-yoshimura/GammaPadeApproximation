@@ -1,5 +1,4 @@
-﻿using GammaFunctionFP64;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace GammaFunctionFP64Tests {
     [TestClass()]
