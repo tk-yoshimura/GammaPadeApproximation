@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace GammaPade {
     internal class InvGammaPolar {
-        static void Main() {
+        static void Main_() {
             const string filepath_expected = "../../../../results_disused/invgamma_polar_expected.csv";
 
             List<(MultiPrecision<Pow2.N32> u, MultiPrecision<Pow2.N32> v)> expecteds = new();
@@ -62,7 +62,7 @@ namespace GammaPade {
                 for (int m = 4; m <= 50; m++) {
                     PadeFitter<Pow2.N32> pade = new(us, vs, m, m, intercept: umin == 0 ? 0 : null);
 
-                    Vector<Pow2.N32> param = pade.ExecuteFitting();
+                    Vector<Pow2.N32> param = pade.Fit();
                     Vector<Pow2.N32> errs = pade.Error(param);
 
                     MultiPrecision<Pow2.N32> max_rateerr = 0;

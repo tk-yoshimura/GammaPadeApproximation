@@ -9,6 +9,21 @@ using System.Linq;
 namespace GammaPade {
     internal class Gamma {
         static void Main_(string[] args) {
+            for (int exponent = -950; exponent <= -50; exponent += 25) {
+                MultiPrecision<Pow2.N32> x = MultiPrecision<Pow2.N32>.Ldexp(1, exponent);
+                MultiPrecision<Pow2.N32> y = 1 / MultiPrecision<Pow2.N32>.Gamma(x);
+
+                Console.WriteLine($"{y:e40}");
+            }
+
+            for (int exponent = -950; exponent <= -50; exponent += 25) {
+                MultiPrecision<Pow2.N32> x = MultiPrecision<Pow2.N32>.Ldexp(-1, exponent);
+                MultiPrecision<Pow2.N32> y = 1 / MultiPrecision<Pow2.N32>.Gamma(x);
+
+                Console.WriteLine($"{y:e40}");
+            }
+
+
             List<(MultiPrecision<Pow2.N32> x, MultiPrecision<Pow2.N32> y)> expecteds = new();
 
             using StreamReader sr = new("../../../../results_disused/invgamma_e32.csv");
@@ -63,7 +78,7 @@ namespace GammaPade {
                 for (int m = 4; m <= 32; m++) {
                     PadeFitter<Pow2.N32> pade = new(xs, ys, m, m, intercept: 0);
 
-                    Vector<Pow2.N32> param = pade.ExecuteFitting();
+                    Vector<Pow2.N32> param = pade.Fit();
                     Vector<Pow2.N32> errs = pade.Error(param);
 
                     MultiPrecision<Pow2.N32> max_rateerr = 0;
